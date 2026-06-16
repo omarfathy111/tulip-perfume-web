@@ -1,0 +1,5 @@
+* linguist-language=Dart
+*.java linguist-documentation=true
+*.html linguist-documentation=true
+*.swift linguist-documentation=true
+*.js linguist-documentation=true
