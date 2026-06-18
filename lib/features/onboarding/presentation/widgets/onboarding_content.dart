@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tulip_for_perfume/features/home/presentation/screens/home_screen.dart';
 
 class OnboardingContent extends StatelessWidget {
   const OnboardingContent({
@@ -35,7 +36,15 @@ class OnboardingContent extends StatelessWidget {
     
                   borderRadius: BorderRadius.circular(30)), // ح
               ),
-              onPressed: () {},
+              onPressed: () {
+                // هنا ممكن تضيف أي وظيفة عايزها لما الزرار يتضغط
+
+                  Navigator.of(context).push(
+    MaterialPageRoute<void>(
+      builder: (context) => const HomeScreen(),
+    ),
+  );// مثال: الانتقال لشاشة الهوم
+              },
               child: Text('ابدأ الان',style: TextStyle(fontWeight: FontWeight.bold),),
               
             ),

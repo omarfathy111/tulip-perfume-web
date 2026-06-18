@@ -15,4 +15,11 @@ class AppImages {
   
   // 4. الأيقونات المخصصة لو مش هتستخدم Icons فلاتر الجاهزة
   static const String whatsappIcon = '${_basePath}whatsapp_icon.png';
+
+  static final List<String> perfumeImages = [
+  '${_basePath}perfume1.png',
+  '${_basePath}perfume2.png',
+  '${_basePath}Gemini_Generated_Image_24q5v524q5v524q5.png',
+
+];
 }
