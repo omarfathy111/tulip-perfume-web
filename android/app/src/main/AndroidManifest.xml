@@ -42,4 +42,14 @@
             <data android:mimeType="text/plain"/>
         </intent>
     </queries>
+    <queries>
+    <!-- استئذان لفتح روابط الويب العادية -->
+    <intent>
+        <action android:name="android.intent.action.VIEW" />
+        <category android:name="android.intent.category.BROWSABLE" />
+        <data android:scheme="https" />
+    </intent>
+    <!-- استئذان لفتح تطبيق الواتساب مباشرة -->
+    <package android:name="com.whatsapp" />
+</queries>
 </manifest>

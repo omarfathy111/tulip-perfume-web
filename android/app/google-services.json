@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "994587967021",
+    "project_id": "tulip-perfume",
+    "storage_bucket": "tulip-perfume.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:994587967021:android:7bde81b151a30cc64e82a4",
+        "android_client_info": {
+          "package_name": "com.example.tulip_for_perfume"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBJ5MqklKQCHP97099DyRC47_zq5i1gkoE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
