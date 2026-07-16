@@ -1,11 +1,16 @@
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'dart:ui'; // مهم جداً عشان تأثير الـ Blur (الضباب) يشتغل
 import '../../../../core/utils/whatsapp_helper.dart'; 
 import '../widgets/triangle_painter.dart'; 
 import '../cubit/home_cubit.dart';
 import '../cubit/home_states.dart';
 import '../widgets/product_details_sheet.dart';
+
+// 🔥 الـ imports لربط السلة بالويب وشاشة السلة
+import '../../../cart/presentation/cubit/cart_cubit.dart';
+import '../../../cart/presentation/cubit/cart_states.dart';
+import '../../../cart/presentation/screens/cart_screen.dart'; // 👈 استدعاء شاشة السلة
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -22,6 +27,13 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _pageController = PageController();
+
+    // 🔥 استدعاء السلة بأمان تام بعد التأكد من جاهزية وبناء كل ملفات الأبلكيشن والـ Widgets
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        context.read<CartCubit>().getCartProducts();
+      }
+    });
   }
 
   @override
@@ -30,7 +42,6 @@ class _HomeScreenState extends State<HomeScreen> {
     super.dispose();
   }
 
-  // دالة التقليب الناعم
   void _scrollToPage(int targetIndex, int totalItems) {
     if (targetIndex >= 0 && targetIndex < totalItems) {
       _pageController.animateToPage(
@@ -64,9 +75,58 @@ class _HomeScreenState extends State<HomeScreen> {
               )
             : null,
         actions: [
-          IconButton(
-            icon: const Icon(Icons.shopping_bag_outlined, color: Colors.white),
-            onPressed: () {},
+          // 🛍️ زرار الشنطة الذكي المطور (يعد ويراقب المنتجات لايف)
+          BlocBuilder<CartCubit, CartStates>(
+            builder: (context, state) {
+              int cartCount = 0;
+              if (state is CartSuccessState) {
+                cartCount = state.cartItems.length;
+              }
+
+              return Padding(
+                padding: const EdgeInsets.only(right: 15.0),
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.shopping_bag_outlined, color: Colors.white, size: 28),
+                      onPressed: () {
+                        // الانتقال لشاشة السلة الفخمة
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const CartScreen()),
+                        );
+                      },
+                    ),
+                    if (cartCount > 0)
+                      Positioned(
+                        right: 5,
+                        top: 5,
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: const BoxDecoration(
+                            color: Color(0xFFC5A880), // الدائرة الذهبية الفخمة
+                            shape: BoxShape.circle,
+                          ),
+                          constraints: const BoxConstraints(
+                            minWidth: 18,
+                            minHeight: 18,
+                          ),
+                          child: Text(
+                            '$cartCount',
+                            style: const TextStyle(
+                              color: Colors.black,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              );
+            },
           ),
         ],
       ),
@@ -96,7 +156,7 @@ class _HomeScreenState extends State<HomeScreen> {
             if (isDesktop) {
               return Row(
                 children: [
-                  // 👈 النصف الأيسر: عرض سينمائي للصور مع أزرار التحكم الفخمة
+                  // 👈 النصف الأيسر السينمائي المطور لمعالجة مقاسات الصور
                   Expanded(
                     flex: 6, 
                     child: Stack(
@@ -105,11 +165,11 @@ class _HomeScreenState extends State<HomeScreen> {
                         PageView.builder(
                           controller: _pageController,
                           scrollDirection: Axis.vertical,
-                          physics: const BouncingScrollPhysics(), // تمكين السحب بالماوس
+                          physics: const BouncingScrollPhysics(),
                           scrollBehavior: ScrollConfiguration.of(context).copyWith(
                             dragDevices: {
                               PointerDeviceKind.touch,
-                              PointerDeviceKind.mouse, // تمكين السحب اليدوي بالماوس
+                              PointerDeviceKind.mouse,
                             },
                           ),
                           onPageChanged: (index) {
@@ -119,25 +179,47 @@ class _HomeScreenState extends State<HomeScreen> {
                           },
                           itemCount: products.length,
                           itemBuilder: (context, index) {
-                            return Container(
-                              decoration: BoxDecoration(
-                                image: DecorationImage(
-                                  image: AssetImage(products[index].image),
-                                  fit: BoxFit.cover,
+                            final imagePath = products[index].image;
+                            
+                            return Stack(
+                              fit: StackFit.expand,
+                              children: [
+                                // أ. الطبقة الخلفية: صورة ممتدة ومغسولة بالكامل بالضباب (Blur)
+                                Container(
+                                  decoration: BoxDecoration(
+                                    image: DecorationImage(
+                                      image: AssetImage(imagePath),
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                  child: BackdropFilter(
+                                    filter: ImageFilter.blur(sigmaX: 25.0, sigmaY: 25.0),
+                                    child: Container(color: Colors.black.withOpacity(0.3)),
+                                  ),
                                 ),
-                              ),
+                                // ب. الطبقة الأمامية: عرض زجاجة العطر بنسبها الحقيقية
+                                Center(
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(40.0),
+                                    child: Image.asset(
+                                      imagePath,
+                                      fit: BoxFit.contain,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             );
                           },
                         ),
                         
-                        // تدرج سينمائي فوق الصورة
+                        // تدرج سينمائي فوق المنتج لتأمين تداخل ناعم مع الجهة اليمنى
                         Container(
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
                               begin: Alignment.centerLeft,
                               end: Alignment.centerRight,
                               colors: [
-                                Colors.black.withOpacity(0.4),
+                                Colors.black.withOpacity(0.2),
                                 Colors.transparent,
                                 Colors.black.withOpacity(0.8),
                               ],
@@ -145,7 +227,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         ),
 
-                        // 🔼🔽 أزرار التقليب الفخمة من الجانب الأيسر
+                        // 🔼🔽 أزرار التقليب الفخمة
                         Positioned(
                           right: 30,
                           top: 0,
@@ -153,7 +235,6 @@ class _HomeScreenState extends State<HomeScreen> {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              // سهم للأعلى
                               Opacity(
                                 opacity: _activeIndex > 0 ? 1.0 : 0.3,
                                 child: FloatingActionButton.small(
@@ -165,7 +246,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                               ),
                               const SizedBox(height: 20),
-                              // مؤشر يعرض الصفحة الحالية من إجمالي الصفحات
                               Text(
                                 "${_activeIndex + 1} / ${products.length}",
                                 style: const TextStyle(
@@ -175,7 +255,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                               ),
                               const SizedBox(height: 20),
-                              // سهم للأسفل
                               Opacity(
                                 opacity: _activeIndex < products.length - 1 ? 1.0 : 0.3,
                                 child: FloatingActionButton.small(
@@ -190,7 +269,6 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         ),
 
-                        // مؤشر أسفل الصورة
                         const Positioned(
                           bottom: 30,
                           left: 30,
@@ -209,7 +287,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
 
-                  // 👉 النصف الأيمن: لوحة التفاصيل الثابتة
+                  // 👉 النصف الأيمن: لوحة التفاصيل الثابتة للويب
                   Container(
                     width: 450,
                     color: const Color(0xFF111111),
@@ -234,9 +312,6 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                           const SizedBox(height: 15),
                           
-                     // قراءة رقم التقييم وعدد المراجعات من الفايربيز
-                          const SizedBox(height: 25),
-
                           Text(
                             activeProduct.description,
                             style: const TextStyle(color: Colors.grey, fontSize: 14, height: 1.6),
@@ -276,25 +351,80 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                           const Spacer(),
 
-                          SizedBox(
-                            width: double.infinity,
-                            height: 60,
-                            child: ElevatedButton.icon(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFFC5A880),
-                                foregroundColor: Colors.black,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                                elevation: 0,
-                              ),
-                              icon: const Icon(Icons.chat_bubble_outline, size: 22),
-                              label: const Text(
-                                "ORDER NOW VIA WHATSAPP",
-                                style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, letterSpacing: 1),
-                              ),
-                              onPressed: () {
-                                WhatsAppHelper.open(productName: activeProduct.name, price: activeProduct.price);
-                              },
-                            ),
+                          // 🔥 أزرار تفاعل الويب المتجاوبة (إضافة للسلة + شراء واتساب)
+                          BlocConsumer<CartCubit, CartStates>(
+                            listener: (context, state) {
+                              if (state is ProductAddedToCartSuccessState) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text("تم إضافة العطر إلى سلتك بنجاح! 🛍️"),
+                                    backgroundColor: Color(0xFFC5A880),
+                                    duration: Duration(seconds: 2),
+                                  ),
+                                );
+                              }
+                            },
+                            builder: (context, state) {
+                              return Column(
+                                children: [
+                                  // 1️⃣ زر إضافة للسلة الفخم (Web Outlined style)
+                                  SizedBox(
+                                    width: double.infinity,
+                                    height: 55,
+                                    child: ElevatedButton.icon(
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.transparent,
+                                        foregroundColor: const Color(0xFFC5A880),
+                                        side: const BorderSide(color: Color(0xFFC5A880), width: 1.5),
+                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                                        elevation: 0,
+                                      ),
+                                      icon: state is CartLoadingState
+                                          ? const SizedBox(
+                                              width: 20,
+                                              height: 20,
+                                              child: CircularProgressIndicator(color: Color(0xFFC5A880), strokeWidth: 2),
+                                            )
+                                          : const Icon(Icons.add_shopping_cart_rounded, size: 20),
+                                      label: const Text("ADD TO CART", style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 1)),
+                                      onPressed: state is CartLoadingState
+                                          ? null
+                                          : () {
+                                              context.read<CartCubit>().addProductToCart(
+                                                    productId: activeProduct.name,
+                                                    productName: activeProduct.name,
+                                                    productPrice: activeProduct.price,
+                                                    productImage: activeProduct.image,
+                                                  );
+                                            },
+                                    ),
+                                  ),
+                                  const SizedBox(height: 12),
+                                  
+                                  // 2️⃣ زر الواتساب الفخم للويب
+                                  SizedBox(
+                                    width: double.infinity,
+                                    height: 55,
+                                    child: ElevatedButton.icon(
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: const Color(0xFFC5A880),
+                                        foregroundColor: Colors.black,
+                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                                        elevation: 0,
+                                      ),
+                                      icon: const Icon(Icons.chat_bubble_outline, size: 20),
+                                      label: const Text(
+                                        "ORDER NOW VIA WHATSAPP",
+                                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 1),
+                                      ),
+                                      onPressed: () {
+                                        WhatsAppHelper.open(productName: activeProduct.name, price: activeProduct.price);
+                                      },
+                                    ),
+                                  ),
+                                ],
+                              );
+                            },
                           ),
                         ],
                       ),
@@ -304,7 +434,7 @@ class _HomeScreenState extends State<HomeScreen> {
               );
             }
 
-            // 📱 2. تصميم الموبايل
+            // 📱 2. تصميم الموبايل الأنيق دون تعديل
             else {
               return PageView.builder(
                 scrollDirection: Axis.vertical,
@@ -383,7 +513,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                       name: currentProduct.name,
                                       price: currentProduct.price,
                                       description: currentProduct.description,
-                             
                                     ),
                                   );
                                 },

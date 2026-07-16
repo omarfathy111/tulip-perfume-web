@@ -1,17 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart'; // 👈 استيراد الـ Bloc للاستماع لحالة السلة
+import 'package:tulip_for_perfume/features/cart/presentation/cubit/cart_cubit.dart';
+import 'package:tulip_for_perfume/features/cart/presentation/cubit/cart_states.dart';
 import '../../../../core/utils/whatsapp_helper.dart';
 import 'triangle_painter.dart';
 
 class ProductDetailsSheet extends StatelessWidget {
   final String name;
   final String price;
-  final String description; // 👈 إضافة المتغير الجديد للوصف
+  final String description;
+  final double rating;       // 👈 إضافة متغير التقييم
+  final int reviewsCount;    // 👈 إضافة متغير عدد المراجعات
 
   const ProductDetailsSheet({
     super.key,
     required this.name,
     required this.price,
     required this.description,
+    this.rating = 4.8,       // قيمة افتراضية في حال عدم التمرير
+    this.reviewsCount = 120, // قيمة افتراضية في حال عدم التمرير
   });
 
   @override
@@ -48,10 +55,13 @@ class ProductDetailsSheet extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      name,
-                      style: const TextStyle(color: Colors.white, fontSize: 26, fontWeight: FontWeight.bold),
+                    Flexible(
+                      child: Text(
+                        name,
+                        style: const TextStyle(color: Colors.white, fontSize: 26, fontWeight: FontWeight.bold),
+                      ),
                     ),
+                    const SizedBox(width: 10),
                     Text(
                       price,
                       style: const TextStyle(color: Color(0xFFC5A880), fontSize: 22, fontWeight: FontWeight.w600),
@@ -69,17 +79,17 @@ class ProductDetailsSheet extends StatelessWidget {
                       children: List.generate(5, (index) => const Icon(Icons.star_rounded, color: Color(0xFFC5A880), size: 20)),
                     ),
                     const SizedBox(width: 8),
-                    // قراءة رقم التقييم من الفايربيز
-                    // Text(
-                    //   rating.toString(), 
-                    //   style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
-                    // ),
+                    // قراءة رقم التقييم بشكل ديناميكي
+                    Text(
+                      rating.toString(), 
+                      style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+                    ),
                     const SizedBox(width: 6),
-                    // قراءة عدد المراجعات من الفايربيز
-                    // Text(
-                    //   "($reviewsCount reviews)", 
-                    //   style: TextStyle(color: Colors.grey[500], fontSize: 13),
-                    // ),
+                    // قراءة عدد المراجعات بشكل ديناميكي
+                    Text(
+                      "($reviewsCount reviews)", 
+                      style: TextStyle(color: Colors.grey[500], fontSize: 13),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 20),
@@ -144,24 +154,79 @@ class ProductDetailsSheet extends StatelessWidget {
                 ),
                 const SizedBox(height: 35),
 
-                // 6. زر الواتساب
-                SizedBox(
-                  width: double.infinity,
-                  height: 55,
-                  child: ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFC5A880),
-                      foregroundColor: Colors.black,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                      elevation: 0,
-                    ),
-                    icon: const Icon(Icons.chat_bubble_outline, size: 20),
-                    label: const Text("ORDER NOW via WHATSAPP", style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
-                    onPressed: () {
-                      Navigator.pop(context);
-                      WhatsAppHelper.open(productName: name, price: price);
-                    },
-                  ),
+                // 6. أزرار التفاعل المتجاوبة مع الـ Bloc (إضافة للسلة + شراء واتساب)
+                BlocConsumer<CartCubit, CartStates>(
+                  listener: (context, state) {
+                    if (state is ProductAddedToCartSuccessState) {
+                      // إظهار رسالة نجاح سفلية عند إضافة المنتج للفايربيز
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text("تم إضافة العطر إلى سلتك بنجاح! 🛍️"),
+                          backgroundColor: Color(0xFFC5A880),
+                          duration: Duration(seconds: 2),
+                        ),
+                      );
+                    }
+                  },
+                  builder: (context, state) {
+                    return Column(
+                      children: [
+                        // 🔥 زرار إضافة إلى السلة
+                        SizedBox(
+                          width: double.infinity,
+                          height: 55,
+                          child: ElevatedButton.icon(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.transparent, 
+                              foregroundColor: const Color(0xFFC5A880),
+                              side: const BorderSide(color: Color(0xFFC5A880), width: 1.5),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                              elevation: 0,
+                            ),
+                            icon: state is CartLoadingState 
+                                ? const SizedBox(
+                                    width: 20, 
+                                    height: 20, 
+                                    child: CircularProgressIndicator(color: Color(0xFFC5A880), strokeWidth: 2),
+                                  )
+                                : const Icon(Icons.add_shopping_cart_rounded, size: 20),
+                            label: const Text("ADD TO CART", style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, letterSpacing: 1)),
+                            onPressed: state is CartLoadingState 
+                                ? null 
+                                : () {
+                                    context.read<CartCubit>().addProductToCart(
+                                          productId: name, 
+                                          productName: name,
+                                          productPrice: price,
+                                          productImage: "assets/images/perfume.png", // يمكنك تمرير مسار الصورة الفعلي لاحقاً
+                                        );
+                                  },
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        
+                        // زرار الواتساب
+                        SizedBox(
+                          width: double.infinity,
+                          height: 55,
+                          child: ElevatedButton.icon(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFFC5A880),
+                              foregroundColor: Colors.black,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                              elevation: 0,
+                            ),
+                            icon: const Icon(Icons.chat_bubble_outline, size: 20),
+                            label: const Text("ORDER NOW via WHATSAPP", style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                            onPressed: () {
+                              Navigator.pop(context);
+                              WhatsAppHelper.open(productName: name, price: price);
+                            },
+                          ),
+                        ),
+                      ],
+                    );
+                  },
                 ),
                 const SizedBox(height: 20),
               ],
