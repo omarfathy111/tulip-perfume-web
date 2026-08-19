@@ -1,25 +1,53 @@
+import 'package:flutter/foundation.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'dart:html' as html;
 
 class WhatsAppHelper {
-  static void open({
+  // 📱 رقم الواتساب الخاص بمتجرك بالرمز الدولي
+  static const String phoneNumber = "201011158329"; // 👈 غير الرقم هنا لرقم المحل
+
+  static Future<void> open({
     required String productName,
     required String price,
-    String phoneNumber = "201016533007",
   }) async {
-    String message = "مرحباً توليب، أود طلب هذا العطر الفاخر:\n\n"
-                     "📌 عطر: $productName\n"
-                     "💰 السعر: $price";
+    // 🎨 تنسيق الرسالة بشكل ملكي وفخم جدًا
+    final String formattedText = 
+'''
+🛍️ *طلب جديد من التطبيق - TULIP PERFUME*
+──────────────────────────
 
-    String url = "whatsapp://send?phone=$phoneNumber&text=${Uri.encodeComponent(message)}";
-    String fallbackUrl = "https://wa.me/$phoneNumber?text=${Uri.encodeComponent(message)}";
+✨ *تفاصيل العطر:*
+• *المنتج:* $productName
+• *السعر:* $price
+
+📋 *بيانات التوصيل المطلوب استكمالها:*
+• *الاسم بالكامل:* 
+• *رقم الهاتف:* 
+• *العنوان بالتفصيل:* 
+
+──────────────────────────
+🌸 _شكراً لاختيارك Tulip Perfume_
+''';
+
+    final String whatsappUrl = "https://wa.me/$phoneNumber?text=${Uri.encodeComponent(formattedText)}";
 
     try {
-      bool launched = await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
-      if (!launched) {
-        await launchUrl(Uri.parse(fallbackUrl), mode: LaunchMode.externalApplication);
+      if (kIsWeb) {
+        html.window.open(whatsappUrl, '_blank');
+      } else {
+        final Uri uri = Uri.parse(whatsappUrl);
+        if (await canLaunchUrl(uri)) {
+          await launchUrl(uri, mode: LaunchMode.externalApplication);
+        } else {
+          if (kDebugMode) {
+            print("لا يمكن فتح الواتساب");
+          }
+        }
       }
     } catch (e) {
-      print("خطأ أثناء فتح الواتساب: $e");
+      if (kDebugMode) {
+        print("خطأ أثناء فتح الواتساب: $e");
+      }
     }
   }
 }

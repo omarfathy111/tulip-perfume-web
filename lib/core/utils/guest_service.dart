@@ -22,7 +22,9 @@ class GuestService {
       String? webGuestId = html.window.localStorage[_guestIdKey];
       
       if (webGuestId != null && webGuestId.trim().isNotEmpty) {
-        print("🎯 [WEB] Stable persistent Guest ID retrieved: $webGuestId");
+        if (kDebugMode) {
+          print("🎯 [WEB] Stable persistent Guest ID retrieved: $webGuestId");
+        }
         _cachedGuestId = webGuestId;
         return webGuestId;
       } else {
@@ -38,7 +40,9 @@ class GuestService {
         String newGuestId = 'guest_web_${uuid.v4()}';
         
         html.window.localStorage[_guestIdKey] = newGuestId;
-        print("🆕 [WEB] First time user! Created and saved Guest ID: $newGuestId");
+        if (kDebugMode) {
+          print("🆕 [WEB] First time user! Created and saved Guest ID: $newGuestId");
+        }
         _cachedGuestId = newGuestId;
         return newGuestId;
       }

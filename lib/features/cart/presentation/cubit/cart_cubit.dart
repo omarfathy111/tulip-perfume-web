@@ -8,6 +8,8 @@ class CartCubit extends Cubit<CartStates> {
 
   CartCubit(this._cartRepository) : super(CartInitialState());
 
+  
+
   // 🔥 1. دالة إضافة منتج للسلة
   Future<void> addProductToCart({
     required String productId,
@@ -53,5 +55,9 @@ class CartCubit extends Cubit<CartStates> {
     } catch (e) {
       emit(CartErrorState("فشل تحميل السلة المحفوظة: ${e.toString()}"));
     }
+    
   }
+
+  
+  
 }
