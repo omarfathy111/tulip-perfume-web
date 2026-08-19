@@ -147,7 +147,7 @@ class _CommentsSectionState extends State<CommentsSection> {
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                     margin: const EdgeInsets.only(bottom: 12),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFC5A880).withOpacity(0.15),
+                      color: Colors.amber,
                       borderRadius: BorderRadius.circular(6),
                       border: Border.all(color: const Color(0xFFC5A880).withOpacity(0.3)),
                     ),
@@ -217,7 +217,7 @@ class _CommentsSectionState extends State<CommentsSection> {
                           constraints: const BoxConstraints(),
                           icon: Icon(
                             index < _userRating ? Icons.star_rounded : Icons.star_border_rounded,
-                            color: const Color(0xFFC5A880),
+                            color:  Colors.amber,
                             size: 20,
                           ),
                           onPressed: () {
@@ -329,7 +329,7 @@ class _CommentsSectionState extends State<CommentsSection> {
                               children: List.generate(5, (starIndex) {
                                 return Icon(
                                   starIndex < rating ? Icons.star_rounded : Icons.star_border_rounded,
-                                  color: const Color(0xFFC5A880),
+                                  color:  Colors.amber,
                                   size: 13,
                                 );
                               }),

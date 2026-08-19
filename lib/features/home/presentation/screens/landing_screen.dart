@@ -423,113 +423,8 @@ class LandingScreen extends StatelessWidget {
 
                     const SizedBox(height: 70),
 
-                    // 💬 قسم آراء العملاء (Testimonials Section)
-                    Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: isDesktop ? 60.0 : 16.0,
-                      ),
-                      child: Column(
-                        children: [
-                          const Text(
-                            'TESTIMONIALS',
-                            style: TextStyle(
-                              color: Color(0xFFC5A880),
-                              fontSize: 11,
-                              fontWeight: FontWeight.w600,
-                              letterSpacing: 4,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          const Text(
-                            'ما يقوله نخبة عملائنا',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 22,
-                              fontWeight: FontWeight.w300,
-                            ),
-                          ),
-                          const SizedBox(height: 30),
-                          Flex(
-                            direction: isDesktop ? Axis.horizontal : Axis.vertical,
-                            children: testimonials.map((item) {
-                              return Expanded(
-                                flex: isDesktop ? 1 : 0,
-                                child: Container(
-                                  margin: EdgeInsets.only(
-                                    bottom: isDesktop ? 0 : 16,
-                                    right: isDesktop ? 16 : 0,
-                                  ),
-                                  padding: const EdgeInsets.all(24),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFF0C0B0A),
-                                    borderRadius: BorderRadius.circular(4),
-                                    border: Border.all(
-                                      color: const Color(0xFFC5A880).withOpacity(0.2),
-                                    ),
-                                  ),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Row(
-                                            children: List.generate(
-                                              5,
-                                              (index) => const Icon(
-                                                Icons.star_rounded,
-                                                color: Color(0xFFC5A880),
-                                                size: 16,
-                                              ),
-                                            ),
-                                          ),
-                                          Text(
-                                            item['rating']!,
-                                            style: const TextStyle(
-                                              color: Color(0xFFC5A880),
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 12,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      const SizedBox(height: 16),
-                                      Text(
-                                        '"${item['comment']}"',
-                                        style: TextStyle(
-                                          color: Colors.grey[300],
-                                          fontSize: 13,
-                                          height: 1.5,
-                                          fontStyle: FontStyle.italic,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 20),
-                                      Text(
-                                        item['name']!,
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 13,
-                                        ),
-                                      ),
-                                      Text(
-                                        item['role']!,
-                                        style: TextStyle(
-                                          color: Colors.grey[600],
-                                          fontSize: 11,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              );
-                            }).toList(),
-                          ),
-                        ],
-                      ),
-                    ),
+                 
 
-                    const SizedBox(height: 70),
 
                     // ✍️ قسم التعليقات التفاعلي المباشر (Interactive Comments Section)
                     Padding(
@@ -537,7 +432,7 @@ class LandingScreen extends StatelessWidget {
                         horizontal: isDesktop ? 60.0 : 16.0,
                       ),
                       child: const CommentsSection(
-                        productId: 'general_tulip_landing', // معرّف عام لتعليقات الصفحة الرئيسية
+                        productId: 'general_tulip_landing',
                       ),
                     ),
 
@@ -686,7 +581,7 @@ class LandingScreen extends StatelessWidget {
               ),
             ),
 
-            // 📝 تفاصيل الكارت السفلية
+            // 📝 تفاصيل الكارت Сفلية
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(18),
@@ -750,4 +645,4 @@ class _BackgroundGridPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
+} 
