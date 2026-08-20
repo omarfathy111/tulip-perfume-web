@@ -36,23 +36,13 @@ class ProductModel {
       description:
           json['description']?.toString() ?? '',
 
-      // ========================================================
-      // CATEGORY ID
-      //
-      // المنتجات الجديدة هتستخدم categoryId
-      //
-      // والمنتجات القديمة اللي عندها category
-      // هنحاول نقرأها كـ fallback
-      // ========================================================
+     
 
       categoryId:
           json['categoryId']?.toString() ??
               json['category']?.toString() ??
               '',
 
-      // ========================================================
-      // CATEGORY NAME
-      // ========================================================
 
       categoryName:
           json['categoryName']?.toString() ??
