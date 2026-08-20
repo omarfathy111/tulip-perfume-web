@@ -10,4 +10,22 @@ class CategoryModel {
     required this.image,
     required this.description,
   });
+
+  factory CategoryModel.fromFirestore(
+    String docId,
+    Map<String, dynamic> json,
+  ) {
+    return CategoryModel(
+      id: docId,
+
+      name:
+          json['name']?.toString() ?? '',
+
+      image:
+          json['image']?.toString() ?? '',
+
+      description:
+          json['description']?.toString() ?? '',
+    );
+  }
 }

@@ -1,25 +1,66 @@
 class ProductModel {
+  final String id;
   final String name;
   final String price;
   final String description;
+
+  // ID القسم
+  final String categoryId;
+
+  // اسم القسم - اختياري للعرض
+  final String categoryName;
+
   final String image;
 
   ProductModel({
+    required this.id,
     required this.name,
     required this.price,
     required this.description,
+    required this.categoryId,
+    required this.categoryName,
     required this.image,
   });
 
-  factory ProductModel.fromJson(
-    Map<String, dynamic> json, {
-    required String image,
-  }) {
+  factory ProductModel.fromFirestore(
+    String docId,
+    Map<String, dynamic> json,
+  ) {
     return ProductModel(
+      id: docId,
+
       name: json['name']?.toString() ?? '',
+
       price: json['price']?.toString() ?? '',
-      description: json['description']?.toString() ?? '',
-      image: image,
+
+      description:
+          json['description']?.toString() ?? '',
+
+      // ========================================================
+      // CATEGORY ID
+      //
+      // المنتجات الجديدة هتستخدم categoryId
+      //
+      // والمنتجات القديمة اللي عندها category
+      // هنحاول نقرأها كـ fallback
+      // ========================================================
+
+      categoryId:
+          json['categoryId']?.toString() ??
+              json['category']?.toString() ??
+              '',
+
+      // ========================================================
+      // CATEGORY NAME
+      // ========================================================
+
+      categoryName:
+          json['categoryName']?.toString() ??
+              json['category']?.toString() ??
+              '',
+
+      image:
+          json['image']?.toString() ?? '',
     );
   }
 }

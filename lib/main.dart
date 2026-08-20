@@ -4,12 +4,15 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+// 🔥 الـ imports الخاصة بصفحات التطبيق
+import 'package:tulip_for_perfume/features/admin/presentation/screens/admin_screen.dart'; // 👈 مسار صفحة الأدمن
 import 'package:tulip_for_perfume/features/home/presentation/screens/landing_screen.dart';
+import 'package:tulip_for_perfume/features/onboarding/presentation/screens/onboarding_screen.dart';
 
+// 🔥 الـ imports الخاصة بالـ Cubits والـ Repositories
 import 'package:tulip_for_perfume/features/cart/data/repositories/cart_repository.dart';
 import 'package:tulip_for_perfume/features/cart/presentation/cubit/cart_cubit.dart';
 import 'package:tulip_for_perfume/features/home/presentation/cubit/home_cubit.dart';
-import 'package:tulip_for_perfume/features/onboarding/presentation/screens/onboarding_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -50,8 +53,14 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         title: 'Tulip For Perfume',
         theme: ThemeData.dark(),
-        // 🔑 التوجيه الذكي المعتمد على كلاس حارس الجلسة
+        
+        // 🔑 التوجيه الذكي المعتمد على حارس الجلسة
         home: const AuthGate(),
+
+        // 🛡️ مسار لوحة التحكم للـ Admin
+        routes: {
+          '/admin': (context) => const AdminScreen(),
+        },
       ),
     );
   }
@@ -64,10 +73,8 @@ class AuthGate extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<User?>(
-      // 🔥 استخدام userChanges لضمان التحقق من التوكين وتحديثات الـ Persistence
       stream: FirebaseAuth.instance.userChanges(),
       builder: (context, snapshot) {
-        // ⏳ 1. إذا كان الفايربيز يفحص الـ Local Storage في البداية
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(
             backgroundColor: Color(0xFF070707),
@@ -79,12 +86,10 @@ class AuthGate extends StatelessWidget {
           );
         }
 
-        // 🔑 2. إذا وجد حساب محفوظ في الـ Cache / Storage 👈 يدخل فوراً LandingScreen
         if (snapshot.hasData && snapshot.data != null) {
           return const LandingScreen();
         }
 
-        // 🚪 3. فقط إذا انتهى الفحص وتأكد عدم وجود يوزر 👈 يفتح OnboardingScreen
         return const OnboardingScreen();
       },
     );

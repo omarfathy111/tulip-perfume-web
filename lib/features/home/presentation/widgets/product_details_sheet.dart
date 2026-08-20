@@ -5,24 +5,38 @@ import 'package:tulip_for_perfume/features/cart/presentation/cubit/cart_cubit.da
 import 'package:tulip_for_perfume/features/cart/presentation/cubit/cart_states.dart';
 
 import '../../../../core/utils/whatsapp_helper.dart';
-import 'comments_section.dart'; // 👈 استيراد قسم التعليقات
+import 'comments_section.dart';
 import 'triangle_painter.dart';
 
 class ProductDetailsSheet extends StatelessWidget {
+  // =============================================================
+  // PRODUCT DATA
+  // =============================================================
+
+  final String productId;
   final String name;
   final String price;
   final String description;
   final String image;
+
+  // =============================================================
+  // RATING
+  // =============================================================
 
   final double rating;
   final int reviewsCount;
 
   const ProductDetailsSheet({
     super.key,
+
+    // ID الحقيقي للمنتج من Firestore
+    required this.productId,
+
     required this.name,
     required this.price,
     required this.description,
     required this.image,
+
     this.rating = 4.8,
     this.reviewsCount = 120,
   });
@@ -30,7 +44,7 @@ class ProductDetailsSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: MediaQuery.of(context).size.height * 0.85, // ⬆️ زيادة الارتفاع لاستيعاب التعليقات بمرونة
+      height: MediaQuery.of(context).size.height * 0.88,
       decoration: const BoxDecoration(
         color: Color(0xFF141414),
         borderRadius: BorderRadius.only(
@@ -43,6 +57,7 @@ class ProductDetailsSheet extends StatelessWidget {
           // =====================================================
           // DRAG HANDLE
           // =====================================================
+
           Center(
             child: Container(
               margin: const EdgeInsets.symmetric(
@@ -57,6 +72,10 @@ class ProductDetailsSheet extends StatelessWidget {
             ),
           ),
 
+          // =====================================================
+          // CONTENT
+          // =====================================================
+
           Expanded(
             child: ListView(
               padding: const EdgeInsets.symmetric(
@@ -65,10 +84,60 @@ class ProductDetailsSheet extends StatelessWidget {
               ),
               children: [
                 // =================================================
+                // PRODUCT IMAGE
+                // =================================================
+
+                Center(
+                  child: Container(
+                    height: 180,
+                    margin: const EdgeInsets.only(
+                      bottom: 20,
+                    ),
+                    child: Image.network(
+                      image,
+                      fit: BoxFit.contain,
+                      loadingBuilder:
+                          (
+                            context,
+                            child,
+                            loadingProgress,
+                          ) {
+                        if (loadingProgress == null) {
+                          return child;
+                        }
+
+                        return const Center(
+                          child: CircularProgressIndicator(
+                            color: Color(0xFFC5A880),
+                            strokeWidth: 2,
+                          ),
+                        );
+                      },
+                      errorBuilder:
+                          (
+                            context,
+                            error,
+                            stackTrace,
+                          ) {
+                        return const Icon(
+                          Icons.auto_awesome,
+                          color: Color(0xFFC5A880),
+                          size: 70,
+                        );
+                      },
+                    ),
+                  ),
+                ),
+
+                // =================================================
                 // NAME + PRICE
                 // =================================================
+
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  mainAxisAlignment:
+                      MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment:
+                      CrossAxisAlignment.start,
                   children: [
                     Flexible(
                       child: Text(
@@ -80,7 +149,9 @@ class ProductDetailsSheet extends StatelessWidget {
                         ),
                       ),
                     ),
+
                     const SizedBox(width: 10),
+
                     Text(
                       price,
                       style: const TextStyle(
@@ -105,6 +176,7 @@ class ProductDetailsSheet extends StatelessWidget {
                 // =================================================
                 // RATING
                 // =================================================
+
                 const SizedBox(height: 10),
 
                 Row(
@@ -119,7 +191,9 @@ class ProductDetailsSheet extends StatelessWidget {
                         ),
                       ),
                     ),
+
                     const SizedBox(width: 8),
+
                     Text(
                       rating.toString(),
                       style: const TextStyle(
@@ -128,7 +202,9 @@ class ProductDetailsSheet extends StatelessWidget {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
+
                     const SizedBox(width: 6),
+
                     Text(
                       "($reviewsCount reviews)",
                       style: TextStyle(
@@ -144,6 +220,7 @@ class ProductDetailsSheet extends StatelessWidget {
                 // =================================================
                 // DESCRIPTION
                 // =================================================
+
                 Text(
                   description,
                   style: const TextStyle(
@@ -158,6 +235,7 @@ class ProductDetailsSheet extends StatelessWidget {
                 // =================================================
                 // FRAGRANCE NOTES
                 // =================================================
+
                 const Text(
                   "FRAGRANCE NOTES",
                   style: TextStyle(
@@ -171,7 +249,8 @@ class ProductDetailsSheet extends StatelessWidget {
                 const SizedBox(height: 15),
 
                 Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment:
+                      CrossAxisAlignment.start,
                   children: [
                     SizedBox(
                       width: 90,
@@ -180,7 +259,8 @@ class ProductDetailsSheet extends StatelessWidget {
                         painter: TrianglePainter(),
                         child: const Center(
                           child: Column(
-                            mainAxisAlignment: MainAxisAlignment.end,
+                            mainAxisAlignment:
+                                MainAxisAlignment.end,
                             children: [
                               Text(
                                 "NOTE",
@@ -194,7 +274,8 @@ class ProductDetailsSheet extends StatelessWidget {
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 10,
-                                  fontWeight: FontWeight.bold,
+                                  fontWeight:
+                                      FontWeight.bold,
                                 ),
                               ),
                               SizedBox(height: 8),
@@ -203,7 +284,9 @@ class ProductDetailsSheet extends StatelessWidget {
                         ),
                       ),
                     ),
+
                     const SizedBox(width: 30),
+
                     Expanded(
                       child: Column(
                         children: [
@@ -211,12 +294,16 @@ class ProductDetailsSheet extends StatelessWidget {
                             Colors.orange,
                             "Amber",
                           ),
+
                           const SizedBox(height: 8),
+
                           _buildInlineNote(
                             Colors.pinkAccent,
                             "Rose",
                           ),
+
                           const SizedBox(height: 8),
+
                           _buildInlineNote(
                             Colors.yellow,
                             "Vanilla",
@@ -232,6 +319,7 @@ class ProductDetailsSheet extends StatelessWidget {
                 // =================================================
                 // PERFORMANCE
                 // =================================================
+
                 Row(
                   children: [
                     _buildPerformanceItem(
@@ -239,6 +327,7 @@ class ProductDetailsSheet extends StatelessWidget {
                       "LONGEVITY:",
                       "Long Lasting (8-10 hrs)",
                     ),
+
                     _buildPerformanceItem(
                       Icons.wb_sunny_outlined,
                       "SILLAGE:",
@@ -250,10 +339,13 @@ class ProductDetailsSheet extends StatelessWidget {
                 const SizedBox(height: 30),
 
                 // =================================================
-                // 🌸 CUSTOMER REVIEWS & COMMENTS (خاصة بهذا العطر)
+                // CUSTOMER REVIEWS
                 // =================================================
+
                 CommentsSection(
-                  productId: name, // 👈 يتم استخدام اسم العطر كمفتاح مستودع تعليقات خاص في Firestore
+                  // مهم:
+                  // استخدم ID الحقيقي بدل اسم المنتج
+                  productId: productId,
                 ),
 
                 const SizedBox(height: 35),
@@ -261,102 +353,176 @@ class ProductDetailsSheet extends StatelessWidget {
                 // =================================================
                 // CART BUTTONS
                 // =================================================
+
                 BlocConsumer<CartCubit, CartStates>(
                   listener: (context, state) {
-                    if (state is ProductAddedToCartSuccessState) {
-                      ScaffoldMessenger.of(context).showSnackBar(
+                    if (state
+                        is ProductAddedToCartSuccessState) {
+                      ScaffoldMessenger.of(context)
+                          .showSnackBar(
                         const SnackBar(
                           content: Text(
                             "تم إضافة العطر إلى سلتك بنجاح! 🛍️",
                           ),
-                          backgroundColor: Color(0xFFC5A880),
-                          duration: Duration(seconds: 2),
+                          backgroundColor:
+                              Color(0xFFC5A880),
+                          duration:
+                              Duration(seconds: 2),
                         ),
                       );
                     }
                   },
+
                   builder: (context, state) {
                     return Column(
                       children: [
-                        // ADD TO CART BUTTON
+                        // =========================================
+                        // ADD TO CART
+                        // =========================================
+
                         SizedBox(
                           width: double.infinity,
                           height: 55,
                           child: ElevatedButton.icon(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.transparent,
-                              foregroundColor: const Color(0xFFC5A880),
-                              side: const BorderSide(
-                                color: Color(0xFFC5A880),
+                            style:
+                                ElevatedButton.styleFrom(
+                              backgroundColor:
+                                  Colors.transparent,
+                              foregroundColor:
+                                  const Color(
+                                0xFFC5A880,
+                              ),
+                              side:
+                                  const BorderSide(
+                                color:
+                                    Color(0xFFC5A880),
                                 width: 1.5,
                               ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(15),
+                              shape:
+                                  RoundedRectangleBorder(
+                                borderRadius:
+                                    BorderRadius
+                                        .circular(15),
                               ),
                               elevation: 0,
                             ),
-                            icon: state is CartLoadingState
+
+                            icon: state
+                                    is CartLoadingState
                                 ? const SizedBox(
                                     width: 20,
                                     height: 20,
-                                    child: CircularProgressIndicator(
-                                      color: Color(0xFFC5A880),
+                                    child:
+                                        CircularProgressIndicator(
+                                      color: Color(
+                                        0xFFC5A880,
+                                      ),
                                       strokeWidth: 2,
                                     ),
                                   )
                                 : const Icon(
-                                    Icons.add_shopping_cart_rounded,
+                                    Icons
+                                        .add_shopping_cart_rounded,
                                     size: 20,
                                   ),
+
                             label: const Text(
                               "ADD TO CART",
                               style: TextStyle(
                                 fontSize: 15,
-                                fontWeight: FontWeight.bold,
+                                fontWeight:
+                                    FontWeight.bold,
                                 letterSpacing: 1,
                               ),
                             ),
-                            onPressed: state is CartLoadingState
-                                ? null
-                                : () {
-                                    context.read<CartCubit>().addProductToCart(
-                                          productId: name,
-                                          productName: name,
-                                          productPrice: price,
-                                          productImage: image,
-                                        );
-                                  },
+
+                            onPressed:
+                                state
+                                        is CartLoadingState
+                                    ? null
+                                    : () {
+                                        // ====================================
+                                        // IMPORTANT
+                                        // ====================================
+                                        //
+                                        // هنا نستخدم productId
+                                        // وليس name
+                                        //
+                                        // وبالتالي:
+                                        //
+                                        // Product A
+                                        // id = abc123
+                                        //
+                                        // Product B
+                                        // id = xyz789
+                                        //
+                                        // لن يحدث بينهم تعارض
+                                        // ====================================
+
+                                        context
+                                            .read<
+                                                CartCubit>()
+                                            .addProductToCart(
+                                              productId:
+                                                  productId,
+                                              productName:
+                                                  name,
+                                              productPrice:
+                                                  price,
+                                              productImage:
+                                                  image,
+                                            );
+                                      },
                           ),
                         ),
 
                         const SizedBox(height: 12),
 
-                        // WHATSAPP BUTTON
+                        // =========================================
+                        // WHATSAPP
+                        // =========================================
+
                         SizedBox(
                           width: double.infinity,
                           height: 55,
                           child: ElevatedButton.icon(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFFC5A880),
-                              foregroundColor: Colors.black,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(15),
+                            style:
+                                ElevatedButton.styleFrom(
+                              backgroundColor:
+                                  const Color(
+                                0xFFC5A880,
+                              ),
+                              foregroundColor:
+                                  Colors.black,
+                              shape:
+                                  RoundedRectangleBorder(
+                                borderRadius:
+                                    BorderRadius
+                                        .circular(15),
                               ),
                               elevation: 0,
                             ),
+
                             icon: const Icon(
-                              Icons.chat_bubble_outline,
+                              Icons
+                                  .chat_bubble_outline,
                               size: 20,
                             ),
+
                             label: const Text(
                               "ORDER NOW via WHATSAPP",
                               style: TextStyle(
                                 fontSize: 15,
-                                fontWeight: FontWeight.bold,
+                                fontWeight:
+                                    FontWeight.bold,
                               ),
                             ),
+
                             onPressed: () {
-                              Navigator.pop(context);
+                              Navigator.pop(
+                                context,
+                              );
+
                               WhatsAppHelper.open(
                                 productName: name,
                                 price: price,
@@ -379,8 +545,9 @@ class ProductDetailsSheet extends StatelessWidget {
   }
 
   // =============================================================
-  // NOTE
+  // INLINE NOTE
   // =============================================================
+
   Widget _buildInlineNote(
     Color dotColor,
     String noteName,
@@ -395,7 +562,9 @@ class ProductDetailsSheet extends StatelessWidget {
             shape: BoxShape.circle,
           ),
         ),
+
         const SizedBox(width: 10),
+
         Text(
           noteName,
           style: const TextStyle(
@@ -410,6 +579,7 @@ class ProductDetailsSheet extends StatelessWidget {
   // =============================================================
   // PERFORMANCE
   // =============================================================
+
   Widget _buildPerformanceItem(
     IconData icon,
     String title,
@@ -417,27 +587,34 @@ class ProductDetailsSheet extends StatelessWidget {
   ) {
     return Expanded(
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment:
+            CrossAxisAlignment.start,
         children: [
           Icon(
             icon,
             color: const Color(0xFFC5A880),
             size: 18,
           ),
+
           const SizedBox(width: 8),
+
           Flexible(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment:
+                  CrossAxisAlignment.start,
               children: [
                 Text(
                   title,
                   style: const TextStyle(
                     color: Colors.grey,
                     fontSize: 10,
-                    fontWeight: FontWeight.bold,
+                    fontWeight:
+                        FontWeight.bold,
                   ),
                 ),
+
                 const SizedBox(height: 2),
+
                 Text(
                   value,
                   style: TextStyle(
